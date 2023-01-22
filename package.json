@@ -18,7 +18,6 @@
   },
   "homepage": "https://github.com/box-o-water/employee_tracker#readme",
   "dependencies": {
-    "inquirer": "^8.2.4",
-    "mysql2": "^3.0.1"
+    "inquirer": "^8.2.4"
   }
 }
