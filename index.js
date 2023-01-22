@@ -156,18 +156,57 @@ function updateEmployeeRole() {
 }
 
 function viewEmployees() {
-  console.log("pretend the employees table displayed");
-  begin();
+  let sql = `
+  SELECT
+    employees.id,
+    employees.first_name,
+    employees.last_name,
+    roles.title,
+    departments.name AS "department",
+    roles.salary,
+    manager.first_name AS "manager"
+  FROM employees
+  JOIN roles
+    ON employees.role_id=roles.id
+  JOIN departments
+    ON roles.dept_id=departments.id
+  LEFT JOIN employees manager
+    ON manager.id=employees.manager_id
+  ;`;
+
+  db.query(sql, function (err, results) {
+    if (err) throw err;
+    console.log("\n");
+    console.table(results);
+    begin();
+  });
 }
 
 function viewRoles() {
-  console.log("pretend the roles table displayed");
-  begin();
+  let sql = `
+  SELECT
+    roles.id,
+    title,
+    departments.name AS "department",
+    salary
+  FROM roles
+  JOIN departments
+    ON roles.dept_id=departments.id
+  ;`;
+
+  db.query(sql, function (err, results) {
+    if (err) throw err;
+    console.log("\n");
+    console.table(results);
+    begin();
+  });
 }
 
 function viewDepartments() {
   let sql = `
-  SELECT id, name
+  SELECT
+    id,
+    name
   FROM departments
   ;`;
 
@@ -175,19 +214,13 @@ function viewDepartments() {
     if (err) throw err;
     console.log("\n");
     console.table(results);
+    begin();
   });
-  begin();
 }
 
 function quit() {
   console.log("thanks for playing");
-  temp();
-}
-
-function temp() {
-  console.log(
-    "something wonderful is about to happen, as soon as i figure out how to make it so"
-  );
+  db.end();
 }
 
 begin();
