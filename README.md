@@ -67,12 +67,21 @@ GIVEN a command-line application that accepts user input:
 - Use `nvm` to install `npm`
 - $ git clone git@github.com:box-o-water/employee_tracker.git
 - $ npm install
+- Install and set up mysql
 
 ## Usage
 
-- $ npm start
-- TODO
-- Visit http://localhost:3001/
+- $ mysql.server start
+- $ mysql -u <user> -p
+- mysql> SOURCE db/schema.sql
+- mysql> SOURCE db/seeds.sql
+- Optional: familiarize yourself with the data tables (next 3 SELECT commands):
+- mysql> SELECT \* from departments;
+- mysql> SELECT \* from roles;
+- mysql> SELECT \* from employees;
+- mysql> quit
+- $ node server.js
+- Answer prompts
 
 ## Contributing
 
