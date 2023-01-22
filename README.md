@@ -80,6 +80,8 @@ GIVEN a command-line application that accepts user input:
 - mysql> SELECT \* from roles;
 - mysql> SELECT \* from employees;
 - mysql> quit
+- Create a copy of `.env_example` file at the same level named `.env`; `.env` is in .gitignore and should NOT be pushed to any VCS (like Github)
+- Add your `USERDB` and `PASSWORD` values to the `.env` file
 - $ node index.js
 - Answer prompts
 

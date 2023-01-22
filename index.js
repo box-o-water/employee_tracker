@@ -1,5 +1,17 @@
+require("dotenv").config();
+require("console.table");
 const inquirer = require("inquirer");
-const fs = require("fs");
+const mysql = require("mysql2");
+
+const db = mysql.createConnection(
+  {
+    host: "localhost",
+    user: process.env.USERDB,
+    password: process.env.PASSWORD,
+    database: "employee_db",
+  },
+  console.log(`Connected to the employee_db database.`)
+);
 
 function begin() {
   inquirer
@@ -154,7 +166,16 @@ function viewRoles() {
 }
 
 function viewDepartments() {
-  console.log("pretend the departments table displayed");
+  let sql = `
+  SELECT id, name
+  FROM departments
+  ;`;
+
+  db.query(sql, function (err, results) {
+    if (err) throw err;
+    console.log("\n");
+    console.table(results);
+  });
   begin();
 }
 
