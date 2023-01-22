@@ -47,7 +47,7 @@ function begin() {
           viewRoles();
           break;
         case "Add Role":
-          addRole();
+          getDepartmentsList();
           break;
         case "View All Departments":
           viewDepartments();
@@ -89,6 +89,26 @@ function addEmployee() {
     });
 }
 
+function getDepartmentsList() {
+  let sql = `
+    SELECT
+      id,
+      name
+    FROM departments
+  `;
+
+  db.query(sql, function (err, results) {
+    if (err) throw err;
+
+    let deptList = results.map(({ id, name }) => ({
+      value: id,
+      name: `${name}`,
+    }));
+
+    addRole(deptList);
+  });
+}
+
 function addRole() {
   inquirer
     .prompt([
@@ -104,16 +124,47 @@ function addRole() {
         name: "newRoleSalary",
         default: 80000,
       },
-      {
-        type: "input",
-        message: "Which department does the role belong to?",
-        name: "newRoleDept",
-        default: "Service", // this will pull a list of departments in the future
-      },
     ])
-    .then(function () {
-      console.log("Added pretend Customer Service to the database");
-      begin();
+    .then(function (userInput) {
+      let input = [userInput.newRole, userInput.newRoleSalary];
+
+      let sql = `
+        SELECT * FROM departments
+      `;
+
+      db.query(sql, (err, results) => {
+        if (err) throw err;
+        let list = results.map(({ id, name }) => ({ name: name, value: id }));
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              message: "Which department does the role belong to?",
+              name: "dept",
+              choices: list,
+            },
+          ])
+          .then(function (param) {
+            let list = param.dept;
+            input.push(list);
+
+            let sql = `
+              INSERT INTO roles (
+                title,
+                salary,
+                dept_id
+              )
+              VALUES (?, ?, ?)
+            `;
+            db.query(sql, input, (error) => {
+              if (error) throw error;
+
+              console.log(`Added ${userInput.newRole} to the database`);
+
+              begin();
+            });
+          });
+      });
     });
 }
 
@@ -127,9 +178,21 @@ function addDepartment() {
         default: "Service",
       },
     ])
-    .then(function () {
-      console.log("Added pretend Service to the database");
-      begin();
+    .then(function (userInput) {
+      let input = [userInput.newDept];
+
+      let sql = `
+        INSERT INTO departments (
+          name
+        )
+        VALUES (?)
+      `;
+
+      db.query(sql, input, (err) => {
+        if (err) throw err;
+        console.log(`Added ${input} to the database`);
+        begin();
+      });
     });
 }
 
@@ -157,21 +220,21 @@ function updateEmployeeRole() {
 
 function viewEmployees() {
   let sql = `
-  SELECT
-    employees.id,
-    employees.first_name,
-    employees.last_name,
-    roles.title,
-    departments.name AS "department",
-    roles.salary,
-    manager.first_name AS "manager"
-  FROM employees
-  JOIN roles
-    ON employees.role_id=roles.id
-  JOIN departments
-    ON roles.dept_id=departments.id
-  LEFT JOIN employees manager
-    ON manager.id=employees.manager_id
+    SELECT
+      employees.id,
+      employees.first_name,
+      employees.last_name,
+      roles.title,
+      departments.name AS "department",
+      roles.salary,
+      manager.first_name AS "manager"
+    FROM employees
+    JOIN roles
+      ON employees.role_id=roles.id
+    JOIN departments
+      ON roles.dept_id=departments.id
+    LEFT JOIN employees manager
+      ON manager.id=employees.manager_id
   ;`;
 
   db.query(sql, function (err, results) {
@@ -184,14 +247,14 @@ function viewEmployees() {
 
 function viewRoles() {
   let sql = `
-  SELECT
-    roles.id,
-    title,
-    departments.name AS "department",
-    salary
-  FROM roles
-  JOIN departments
-    ON roles.dept_id=departments.id
+    SELECT
+      roles.id,
+      title,
+      departments.name AS "department",
+      salary
+    FROM roles
+    JOIN departments
+      ON roles.dept_id=departments.id
   ;`;
 
   db.query(sql, function (err, results) {
@@ -204,10 +267,10 @@ function viewRoles() {
 
 function viewDepartments() {
   let sql = `
-  SELECT
-    id,
-    name
-  FROM departments
+    SELECT
+      id,
+      name
+    FROM departments
   ;`;
 
   db.query(sql, function (err, results) {
