@@ -1,0 +1,114 @@
+What would you like to do? 
+    View All Employees
+    Add Employee
+    Update Employee Role
+    View All Roles
+    Add Role
+    View All Departments
+    Add Department
+    Quit
+
+What would you like to do? View All Departments
+    id  name
+    1   Sales
+    2   Engineering
+    3   Finance
+    4   Legal
+
+What would you like to do? View All Roles
+    id  title               department      salary
+    1   Sales Lead          Sales           100000
+    2   Salesperson         Sales           80000
+    3   Lead Engineer       Engineering     150000
+    4   Software Engineer   Engineering     120000
+    5   Account Manager     Finance         160000
+    6   Accountant          Finance         125000
+    7   Legal Team Lead     Legal           250000
+    8   Lawyer              Legal           190000
+
+What would you like to do? View All Employees
+    id  first_name  last_name   title               department      salary      manager
+    1   John        Doe         Sales Lead          Sales           100000      null
+    2   Mike        Chan        Salesperson         Sales           80000       John Doe
+    3   Ashley      Rodriguez   Lead Engineer       Engineering     150000      null
+    4   Kevin       Tupik       Software Engineer   Engineering     120000      Ashley Rodriguez
+    5   Kunal       Singh       Account Manager     Finance         160000      null
+    6   Malia       Brown       Accountant          Finance         125000      Kunal Singh
+    7   Sarah       Lourd       Legal Team Lead     Legal           250000      null
+    8   Tom         Allen       Lawyer              Legal           190000      Sarah Lourd
+
+What would you like to do? Add Department
+    What is the name of the Department? Service
+Added Service to the database
+
+What would you like to do? Add Role
+    What is the name of the Role? Customer Service
+    What is the salary of the role? 80000
+    Which department does the role belong to? Service
+        Sales
+        Engineering
+        Finance
+        Legal
+        Service
+Added Customer Service to the database
+
+What would you like to do? Add Employee
+    What is the employee's first name? Sam
+    What is the employee's last name? Kash
+    What is the employee's roll? Customer Service
+        Sales Lead
+        Salesperson
+        Lead Engineer
+        Software Engineer
+        Account Manager
+        Accountant
+        Legal Team Lead
+        Lawyer
+        Customer Service
+        Sales Lead
+    Who is the employee's manager? Ashley Rodriguez
+        None
+        John Doe
+        Mike Chan
+        Ashley Rodriguez
+        Kevin Tupik
+        Kunal Singh
+        Malia Brow
+Added Sam Kash to the database
+
+What would you like to do? Update Employee Role
+    Which Employee's role do you want to update? Sam Kash
+        John Doe
+        Mike Chan
+        Ashley Rodriguez
+        Kevin Tupik
+        Kunal Singh
+        Malia Brow
+        Sarah Lourd
+        Tom Allen
+        Sam Kash
+        John Doe
+    Which role do you want to assign the selected employee? Sales Lead
+        Sales Lead
+        Salesperson
+        Lead Engineer
+        Software Engineer
+        Account Manager
+        Accountant
+        Legal Team Lead
+        Lawyer
+        Customer Service
+        Sales Lead
+Updated employee's role
+
+What would you like to do? View All Employees
+    id  first_name  last_name   title               department      salary      manager
+    1   John        Doe         Sales Lead          Sales           100000      null
+    2   Mike        Chan        Salesperson         Sales           80000       John Doe
+    3   Ashley      Rodriguez   Lead Engineer       Engineering     150000      null
+    4   Kevin       Tupik       Software Engineer   Engineering     120000      Ashley Rodriguez
+    5   Kunal       Singh       Account Manager     Finance         160000      null
+    6   Malia       Brown       Accountant          Finance         125000      Kunal Singh
+    7   Sarah       Lourd       Legal Team Lead     Legal           250000      null
+    8   Tom         Allen       Lawyer              Legal           190000      Sarah Lourd
+    9   Sam         Kash        Sales Lead          Sales           100000      Ashley Rodriguez

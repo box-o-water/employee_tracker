@@ -80,7 +80,7 @@ GIVEN a command-line application that accepts user input:
 - mysql> SELECT \* from roles;
 - mysql> SELECT \* from employees;
 - mysql> quit
-- $ node server.js
+- $ node index.js
 - Answer prompts
 
 ## Contributing
