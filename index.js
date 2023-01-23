@@ -47,7 +47,7 @@ function begin() {
           viewRoles();
           break;
         case "Add Role":
-          getDepartmentsList();
+          addRole();
           break;
         case "View All Departments":
           viewDepartments();
@@ -76,37 +76,93 @@ function addEmployee() {
         name: "newEmpLastName",
         default: "Kash",
       },
-      {
-        type: "input",
-        message: "What role do you want to assign the selected employee?",
-        name: "newEmpRole",
-        default: "Sales Lead", // this will pull a list of roles in the future
-      },
     ])
-    .then(function () {
-      console.log("Added pretend Sam Kash to the database");
-      begin();
+    // add role to employee
+    .then(function (userInput) {
+      let input = [userInput.newEmpFirstName, userInput.newEmpLastName];
+
+      let sql = `
+        SELECT
+          id,
+          title
+        FROM roles
+      `;
+
+      db.query(sql, (err, results) => {
+        if (err) throw err;
+        let roleList = results.map(({ id, title }) => ({
+          name: title,
+          value: id,
+        }));
+
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              message: "What is the employee's roll?",
+              name: "role",
+              choices: roleList,
+            },
+          ])
+          // add manager to employee
+          .then(function (userInput) {
+            let roleInput = [userInput.role];
+            input.push(roleInput);
+
+            let sql = `
+              SELECT
+                id,
+                first_name,
+                last_name
+              FROM employees
+            `;
+
+            db.query(sql, (err, results) => {
+              if (err) throw err;
+
+              let managersList = results.map(
+                ({ id, first_name, last_name }) => ({
+                  name: first_name + " " + last_name,
+                  value: id,
+                })
+              );
+
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    message: "Who is the employee's manager?",
+                    name: "manager",
+                    choices: managersList,
+                  },
+                ])
+                .then(function (userInput) {
+                  let managerInput = userInput.manager;
+                  input.push(managerInput);
+
+                  let sql = `
+                    INSERT INTO employees (
+                      first_name,
+                      last_name,
+                      role_id,
+                      manager_id
+                    )
+                    VALUES (?, ?, ?, ?)
+                  `;
+
+                  db.query(sql, input, (error) => {
+                    if (error) throw error;
+                    console.log(
+                      `Added ${userInput.first_name} ${userInput.last_name} to the database`
+                    );
+
+                    begin();
+                  });
+                });
+            });
+          });
+      });
     });
-}
-
-function getDepartmentsList() {
-  let sql = `
-    SELECT
-      id,
-      name
-    FROM departments
-  `;
-
-  db.query(sql, function (err, results) {
-    if (err) throw err;
-
-    let deptList = results.map(({ id, name }) => ({
-      value: id,
-      name: `${name}`,
-    }));
-
-    addRole(deptList);
-  });
 }
 
 function addRole() {
@@ -129,12 +185,16 @@ function addRole() {
       let input = [userInput.newRole, userInput.newRoleSalary];
 
       let sql = `
-        SELECT * FROM departments
+        SELECT
+          id,
+          name
+        FROM departments
       `;
 
       db.query(sql, (err, results) => {
         if (err) throw err;
         let list = results.map(({ id, name }) => ({ name: name, value: id }));
+
         inquirer
           .prompt([
             {
@@ -156,6 +216,7 @@ function addRole() {
               )
               VALUES (?, ?, ?)
             `;
+
             db.query(sql, input, (error) => {
               if (error) throw error;
 
@@ -191,6 +252,7 @@ function addDepartment() {
       db.query(sql, input, (err) => {
         if (err) throw err;
         console.log(`Added ${input} to the database`);
+
         begin();
       });
     });
@@ -214,6 +276,7 @@ function updateEmployeeRole() {
     ])
     .then(function () {
       console.log("Updated pretend Sam Kash's role");
+
       begin();
     });
 }
@@ -227,11 +290,11 @@ function viewEmployees() {
       roles.title,
       departments.name AS "department",
       roles.salary,
-      manager.first_name AS "manager"
+      CONCAT(manager.first_name," ", manager.last_name) AS "manager"
     FROM employees
-    JOIN roles
+    LEFT JOIN roles
       ON employees.role_id=roles.id
-    JOIN departments
+    LEFT JOIN departments
       ON roles.dept_id=departments.id
     LEFT JOIN employees manager
       ON manager.id=employees.manager_id
@@ -241,6 +304,7 @@ function viewEmployees() {
     if (err) throw err;
     console.log("\n");
     console.table(results);
+
     begin();
   });
 }
@@ -253,7 +317,7 @@ function viewRoles() {
       departments.name AS "department",
       salary
     FROM roles
-    JOIN departments
+    LEFT JOIN departments
       ON roles.dept_id=departments.id
   ;`;
 
@@ -261,6 +325,7 @@ function viewRoles() {
     if (err) throw err;
     console.log("\n");
     console.table(results);
+
     begin();
   });
 }
@@ -277,12 +342,14 @@ function viewDepartments() {
     if (err) throw err;
     console.log("\n");
     console.table(results);
+
     begin();
   });
 }
 
 function quit() {
   console.log("thanks for playing");
+
   db.end();
 }
 
