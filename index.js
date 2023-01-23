@@ -90,6 +90,7 @@ function addEmployee() {
 
       db.query(sql, (err, results) => {
         if (err) throw err;
+
         let roleList = results.map(({ id, title }) => ({
           name: title,
           value: id,
@@ -100,14 +101,14 @@ function addEmployee() {
             {
               type: "list",
               message: "What is the employee's roll?",
-              name: "role",
+              name: "roleId",
               choices: roleList,
             },
           ])
           // add manager to employee
           .then(function (userInput) {
-            let roleInput = [userInput.role];
-            input.push(roleInput);
+            let roleId = userInput.roleId;
+            input.push(roleId);
 
             let sql = `
               SELECT
@@ -132,13 +133,13 @@ function addEmployee() {
                   {
                     type: "list",
                     message: "Who is the employee's manager?",
-                    name: "manager",
+                    name: "managerId",
                     choices: managersList,
                   },
                 ])
                 .then(function (userInput) {
-                  let managerInput = userInput.manager;
-                  input.push(managerInput);
+                  let managerId = userInput.managerId;
+                  input.push(managerId);
 
                   let sql = `
                     INSERT INTO employees (
@@ -152,8 +153,9 @@ function addEmployee() {
 
                   db.query(sql, input, (error) => {
                     if (error) throw error;
+
                     console.log(
-                      `Added ${userInput.first_name} ${userInput.last_name} to the database`
+                      `Added ${input[0]} ${input[1]} to the database`
                     );
 
                     begin();
@@ -200,13 +202,13 @@ function addRole() {
             {
               type: "list",
               message: "Which department does the role belong to?",
-              name: "dept",
+              name: "deptId",
               choices: list,
             },
           ])
-          .then(function (param) {
-            let list = param.dept;
-            input.push(list);
+          .then(function (userInput) {
+            let deptId = userInput.deptId;
+            input.push(deptId);
 
             let sql = `
               INSERT INTO roles (
@@ -251,6 +253,7 @@ function addDepartment() {
 
       db.query(sql, input, (err) => {
         if (err) throw err;
+
         console.log(`Added ${input} to the database`);
 
         begin();
@@ -259,26 +262,80 @@ function addDepartment() {
 }
 
 function updateEmployeeRole() {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "Which Employee's role do you want to update?",
-        name: "updtEmp",
-        default: "Sam Kash", // this will pull a list of employees in the future
-      },
-      {
-        type: "input",
-        message: "Which role do you want to assign the selected employee?",
-        name: "updtEmpRole",
-        default: "Sales Lead",
-      },
-    ])
-    .then(function () {
-      console.log("Updated pretend Sam Kash's role");
+  let sql = `
+    SELECT
+      id,
+      first_name,
+      last_name
+    FROM employees
+  `;
 
-      begin();
-    });
+  db.query(sql, (err, results) => {
+    if (err) throw err;
+
+    let employeesList = results.map(({ id, first_name, last_name }) => ({
+      name: first_name + " " + last_name,
+      value: id,
+    }));
+
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          message: "Which Employee's role do you want to update?",
+          name: "employeeId",
+          choices: employeesList,
+        },
+      ])
+      .then(function (userInput) {
+        let input = [userInput.employeeId];
+
+        let sql = `
+          SELECT
+            id,
+            title
+          FROM roles
+        `;
+
+        db.query(sql, (err, results) => {
+          if (err) throw err;
+
+          let roleList = results.map(({ id, title }) => ({
+            name: title,
+            value: id,
+          }));
+
+          inquirer
+            .prompt([
+              {
+                type: "list",
+                message:
+                  "Which role do you want to assign the selected employee?",
+                name: "roleId",
+                choices: roleList,
+              },
+            ])
+            .then(function (userInput) {
+              let roleId = userInput.roleId;
+              input.push(roleId);
+
+              let sql = `
+                UPDATE employees
+                SET employees.role_id = ?
+                WHERE employees.id = ?
+              `;
+              // reverse the array to match the order needed for the UPDATE statement
+              db.query(sql, input.reverse(), (error) => {
+                if (error) throw error;
+
+                console.log("Updated employee's role");
+
+                begin();
+              });
+            });
+        });
+      });
+  });
 }
 
 function viewEmployees() {
@@ -302,6 +359,7 @@ function viewEmployees() {
 
   db.query(sql, function (err, results) {
     if (err) throw err;
+
     console.log("\n");
     console.table(results);
 
@@ -323,6 +381,7 @@ function viewRoles() {
 
   db.query(sql, function (err, results) {
     if (err) throw err;
+
     console.log("\n");
     console.table(results);
 
@@ -340,6 +399,7 @@ function viewDepartments() {
 
   db.query(sql, function (err, results) {
     if (err) throw err;
+
     console.log("\n");
     console.table(results);
 
@@ -348,8 +408,6 @@ function viewDepartments() {
 }
 
 function quit() {
-  console.log("thanks for playing");
-
   db.end();
 }
 
