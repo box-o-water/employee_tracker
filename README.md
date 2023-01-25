@@ -9,7 +9,7 @@
 
 A command-line application to manage an employee database, using Node.js, Inquirer, and MySQL.
 
-![preview](//assets/images/employee_tracker_preview1.png)
+![preview](/assets/images/employee_tracker_preview1.png)
 ![preview](/assets/images/employee_tracker_preview2.png)
 
 Click [here](https://watch.screencastify.com/v/hUfAq5vvfRxIojVLdwJy) to watch a screencastify video demonstrating the application.
