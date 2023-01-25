@@ -1,8 +1,10 @@
+// Modules to require
 require("dotenv").config();
 require("console.table");
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 
+// Database connection
 const db = mysql.createConnection(
   {
     host: "localhost",
@@ -13,6 +15,8 @@ const db = mysql.createConnection(
   console.log(`Connected to the employee_db database.`)
 );
 
+// The begin function lists the user options,
+// and calls the corresponding function
 function begin() {
   inquirer
     .prompt([
@@ -38,6 +42,7 @@ function begin() {
         ],
       },
     ])
+    // call the function for the user's choice
     .then(function (userInput) {
       switch (userInput.actions) {
         case "View Total Utilized Budget By Department":
@@ -85,21 +90,29 @@ function begin() {
     });
 }
 
+// The viewBudgetByDept function will display
+// the sum of salaries for the selected department
 function viewBudgetByDept() {
+  // get a list of departments
   let sql = `
     SELECT
       id,
-      name
+      CONCAT(name, ", id: ", id) AS departments
     FROM departments
-    ORDER BY name
+    ORDER BY departments
   `;
 
   db.query(sql, (error, results) => {
     if (error) throw error;
 
-    let departmentList = results.map(({ id, name }) => ({
-      name: name,
+    let departmentList = results.map(({ id, departments }) => ({
+      name: departments,
       value: id,
+    }));
+
+    let departmentList2 = results.map(({ id, departments }) => ({
+      name: id,
+      value: departments,
     }));
 
     inquirer
@@ -114,6 +127,7 @@ function viewBudgetByDept() {
       .then(function (userInput) {
         let input = [userInput.deptId];
 
+        // sum the salaries of the selected department
         let sql = `
           SELECT
             SUM(roles.salary) AS "Department Budget"
@@ -137,20 +151,23 @@ function viewBudgetByDept() {
   });
 }
 
+// The viewEmployeesByDept function will display
+// a table of employees for the selected department
 function viewEmployeesByDept() {
+  // get a list of departments
   let sql = `
     SELECT
       id,
-      name
+      CONCAT(name, ", id: ", id) AS departments
     FROM departments
-    ORDER BY name
+    ORDER BY departments
   `;
 
   db.query(sql, (error, results) => {
     if (error) throw error;
 
-    let departmentList = results.map(({ id, name }) => ({
-      name: name,
+    let departmentList = results.map(({ id, departments }) => ({
+      name: departments,
       value: id,
     }));
 
@@ -166,6 +183,7 @@ function viewEmployeesByDept() {
       .then(function (userInput) {
         let input = [userInput.deptId];
 
+        // list the employees for the selected department
         let sql = `
           SELECT
             employees.id,
@@ -197,6 +215,8 @@ function viewEmployeesByDept() {
   });
 }
 
+// The viewEmployees function will display
+// a table of all employees
 function viewEmployees() {
   let sql = `
     SELECT
@@ -226,6 +246,8 @@ function viewEmployees() {
   });
 }
 
+// The viewRoles function will display
+// a table of all roles
 function viewRoles() {
   let sql = `
     SELECT
@@ -248,7 +270,8 @@ function viewRoles() {
   });
 }
 
-// The viewDepartments function will return a table showing all departments.
+// The viewDepartments function will display
+// a table of all departments
 function viewDepartments() {
   let sql = `
     SELECT
@@ -267,21 +290,22 @@ function viewDepartments() {
   });
 }
 
+// The updateEmployeeRole function will update
+// the role for a selected employee
 function updateEmployeeRole() {
   let sql = `
     SELECT
       id,
-      first_name,
-      last_name
+      CONCAT(first_name, " ", last_name, ", id: ", id) AS name
     FROM employees
-    ORDER BY first_name, last_name
+    ORDER BY name
   `;
 
   db.query(sql, (error, results) => {
     if (error) throw error;
 
-    let employeesList = results.map(({ id, first_name, last_name }) => ({
-      name: first_name + " " + last_name,
+    let employeesList = results.map(({ id, name }) => ({
+      name: name,
       value: id,
     }));
 
@@ -297,18 +321,20 @@ function updateEmployeeRole() {
       .then(function (userInput) {
         let input = [userInput.employeeId];
 
+        // get a list of roles
         let sql = `
           SELECT
             id,
-            title
+            CONCAT(title, ", id: ", id) AS roles
           FROM roles
+          ORDER BY roles
         `;
 
         db.query(sql, (error, results) => {
           if (error) throw error;
 
-          let roleList = results.map(({ id, title }) => ({
-            name: title,
+          let roleList = results.map(({ id, roles }) => ({
+            name: roles,
             value: id,
           }));
 
@@ -326,6 +352,7 @@ function updateEmployeeRole() {
               let roleId = userInput.roleId;
               input.push(roleId);
 
+              // update the role for the selected employee
               let sql = `
                 UPDATE employees
                 SET employees.role_id = ?
@@ -345,21 +372,23 @@ function updateEmployeeRole() {
   });
 }
 
+// The updateEmployeeMgr function will update
+// the manager for a selected employee
 function updateEmployeeMgr() {
+  // get a list of employees
   let sql = `
     SELECT
       id,
-      first_name,
-      last_name
+      CONCAT(first_name, " ", last_name, ", id: ", id) AS name
     FROM employees
-    ORDER BY first_name, last_name
+    ORDER BY name
   `;
 
   db.query(sql, (error, results) => {
     if (error) throw error;
 
-    let employeesList = results.map(({ id, first_name, last_name }) => ({
-      name: first_name + " " + last_name,
+    let employeesList = results.map(({ id, name }) => ({
+      name: name,
       value: id,
     }));
 
@@ -375,20 +404,20 @@ function updateEmployeeMgr() {
       .then(function (userInput) {
         let input = [userInput.employeeId];
 
+        // get a list of employees (managers)
         let sql = `
           SELECT
             id,
-            first_name,
-            last_name
+            CONCAT(first_name, " ", last_name, ", id: ", id) AS name
           FROM employees
-          ORDER BY first_name, last_name
+          ORDER BY name
         `;
 
         db.query(sql, (error, results) => {
           if (error) throw error;
 
-          let managersList = results.map(({ id, first_name, last_name }) => ({
-            name: first_name + " " + last_name,
+          let managersList = results.map(({ id, name }) => ({
+            name: name,
             value: id,
           }));
 
@@ -405,6 +434,7 @@ function updateEmployeeMgr() {
               let managerId = userInput.managerId;
               input.push(managerId);
 
+              // update the manager for the selected employee
               let sql = `
                 UPDATE employees
                 SET employees.manager_id = ?
@@ -424,6 +454,7 @@ function updateEmployeeMgr() {
   });
 }
 
+// The addEmployee function will add an employee to the database
 function addEmployee() {
   inquirer
     .prompt([
@@ -431,31 +462,31 @@ function addEmployee() {
         type: "input",
         message: "What is the employee's first name?",
         name: "newEmpFirstName",
-        default: "Sam",
       },
       {
         type: "input",
         message: "What is the employee's last name?",
         name: "newEmpLastName",
-        default: "Kash",
       },
     ])
     // add role to employee
     .then(function (userInput) {
       let input = [userInput.newEmpFirstName, userInput.newEmpLastName];
 
+      // get a list of roles
       let sql = `
         SELECT
           id,
-          title
+          CONCAT(title, ", id: ", id) AS roles
         FROM roles
+        ORDER BY roles
       `;
 
       db.query(sql, (error, results) => {
         if (error) throw error;
 
-        let roleList = results.map(({ id, title }) => ({
-          name: title,
+        let roleList = results.map(({ id, roles }) => ({
+          name: roles,
           value: id,
         }));
 
@@ -473,23 +504,22 @@ function addEmployee() {
             let roleId = userInput.roleId;
             input.push(roleId);
 
+            // get a list of employees (managers)
             let sql = `
               SELECT
                 id,
-                first_name,
-                last_name
+                CONCAT(first_name, " ", last_name, ", id: ", id) AS name
               FROM employees
+              ORDER BY name
             `;
 
             db.query(sql, (error, results) => {
               if (error) throw error;
 
-              let managersList = results.map(
-                ({ id, first_name, last_name }) => ({
-                  name: first_name + " " + last_name,
-                  value: id,
-                })
-              );
+              let managersList = results.map(({ id, name }) => ({
+                name: name,
+                value: id,
+              }));
 
               inquirer
                 .prompt([
@@ -504,6 +534,7 @@ function addEmployee() {
                   let managerId = userInput.managerId;
                   input.push(managerId);
 
+                  // add the new employee
                   let sql = `
                     INSERT INTO employees (
                       first_name,
@@ -530,6 +561,7 @@ function addEmployee() {
     });
 }
 
+// The addRole function will add a role to the database
 function addRole() {
   inquirer
     .prompt([
@@ -537,28 +569,31 @@ function addRole() {
         type: "input",
         message: "What is the name of the Role?",
         name: "newRole",
-        default: "Customer Service",
       },
       {
         type: "input",
         message: "What is the Salary of the Role?",
         name: "newRoleSalary",
-        default: 80000,
       },
     ])
     .then(function (userInput) {
       let input = [userInput.newRole, userInput.newRoleSalary];
 
+      // get a list of departments
       let sql = `
         SELECT
           id,
-          name
+          CONCAT(name, ", id: ", id) AS departments
         FROM departments
+        ORDER BY departments
       `;
 
       db.query(sql, (error, results) => {
         if (error) throw error;
-        let list = results.map(({ id, name }) => ({ name: name, value: id }));
+        let list = results.map(({ id, departments }) => ({
+          name: departments,
+          value: id,
+        }));
 
         inquirer
           .prompt([
@@ -573,6 +608,7 @@ function addRole() {
             let deptId = userInput.deptId;
             input.push(deptId);
 
+            // add the new role
             let sql = `
               INSERT INTO roles (
                 title,
@@ -594,6 +630,7 @@ function addRole() {
     });
 }
 
+// The addDepartment function will add a department to the database
 function addDepartment() {
   inquirer
     .prompt([
@@ -601,12 +638,12 @@ function addDepartment() {
         type: "input",
         message: "What is the name of the Department?",
         name: "newDept",
-        default: "Service",
       },
     ])
     .then(function (userInput) {
       let input = [userInput.newDept];
 
+      // add the new department
       let sql = `
         INSERT INTO departments (
           name
@@ -624,20 +661,22 @@ function addDepartment() {
     });
 }
 
+// The deleteEmployee function will delete an employee from the database
 function deleteEmployee() {
+  // get a list of employees
   let sql = `
     SELECT
       id,
-      CONCAT(first_name, " ", last_name) AS employee
+      CONCAT(first_name, " ", last_name, ", id: ", id) AS name
     FROM employees
-    ORDER BY first_name, last_name
+    ORDER BY name
   `;
 
   db.query(sql, (error, results) => {
     if (error) throw error;
 
-    let empList = results.map(({ id, employee }) => ({
-      name: employee,
+    let empList = results.map(({ id, name }) => ({
+      name: name,
       value: id,
     }));
 
@@ -653,6 +692,7 @@ function deleteEmployee() {
       .then(function (userInput) {
         let input = [userInput.empId];
 
+        // delete the selected employee
         let sql = `
           DELETE FROM employees
           WHERE id = ?
@@ -669,20 +709,22 @@ function deleteEmployee() {
   });
 }
 
+// The deleteRole function will delete a role from the database
 function deleteRole() {
+  // get a list of roles
   let sql = `
     SELECT
       id,
-      title
+      CONCAT(title, ", id: ", id) AS roles
     FROM roles
-    ORDER BY title
+    ORDER BY roles
   `;
 
   db.query(sql, (error, results) => {
     if (error) throw error;
 
-    let roleList = results.map(({ id, title }) => ({
-      name: title,
+    let roleList = results.map(({ id, roles }) => ({
+      name: roles,
       value: id,
     }));
 
@@ -698,6 +740,7 @@ function deleteRole() {
       .then(function (userInput) {
         let input = [userInput.roleId];
 
+        // delete the selected role
         let sql = `
           DELETE FROM roles
           WHERE id = ?
@@ -714,20 +757,22 @@ function deleteRole() {
   });
 }
 
+// The deleteDepartment function will delete a department from the database
 function deleteDepartment() {
+  // get a list of departments
   let sql = `
     SELECT
       id,
-      name
+      CONCAT(name, ", id: ", id) AS departments
     FROM departments
-    ORDER BY name
+    ORDER BY departments
   `;
 
   db.query(sql, (error, results) => {
     if (error) throw error;
 
-    let departmentList = results.map(({ id, name }) => ({
-      name: name,
+    let departmentList = results.map(({ id, departments }) => ({
+      name: departments,
       value: id,
     }));
 
@@ -743,6 +788,7 @@ function deleteDepartment() {
       .then(function (userInput) {
         let input = [userInput.deptId];
 
+        // delete the selected department
         let sql = `
           DELETE FROM departments
           WHERE id = ?
