@@ -110,11 +110,6 @@ function viewBudgetByDept() {
       value: id,
     }));
 
-    let departmentList2 = results.map(({ id, departments }) => ({
-      name: id,
-      value: departments,
-    }));
-
     inquirer
       .prompt([
         {
