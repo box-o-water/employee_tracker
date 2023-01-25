@@ -12,7 +12,7 @@ A command-line application to manage an employee database, using Node.js, Inquir
 ![preview](//assets/images/employee_tracker_preview1.png)
 ![preview](/assets/images/employee_tracker_preview2.png)
 
-Click [here TODO](https://) to see the deployed application.
+Click [here](https://watch.screencastify.com/v/hUfAq5vvfRxIojVLdwJy) to watch a screencastify video demonstrating the application.
 
 ## Table of Contents
 
