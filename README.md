@@ -62,6 +62,8 @@ GIVEN a command-line application that accepts user input:
 - [x] WHEN I choose to update an employee role
       THEN I am prompted to select an employee to update and their new role and this information is updated in the database
 
+- [x] BONUS: Ability to delete employee's, role's, department's, update employee manager's and role's, view employee's or budgets by department
+
 ## Installation
 
 - Install `nvm`
