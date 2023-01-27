@@ -1,5 +1,8 @@
 # employee_tracker
 
+![open issues](https://img.shields.io/github/issues-raw/box-o-water/employee_tracker)
+![closed issues](https://img.shields.io/github/issues-closed-raw/box-o-water/employee_tracker)
+
 ![license](https://img.shields.io/static/v1?label=license&message=MIT&color=blue)
 
 ## Description
